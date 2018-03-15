@@ -1,5 +1,6 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 
 
 var {mongoose} = require('./db/mongoose');
@@ -26,7 +27,33 @@ app.post('/todos',(req,res)=>{
 
 });
 
+app.get('/todos/:id',(req,res)=>{
+    res.send(req.params);
+});
+
+
+
+//POST USERS
+
+app.post('/users',(req,res)=>{
+  var body = _.pick(req.body,['email','password']);
+  var user =  new User(body);
+
+
+  user.save().then(()=>{
+    return user.generateAuthToken();
+  }).then((token)=>{
+    res.header('x-auth').send(user);
+  }).catch((e)=>{
+    res.status(400).send(e);
+  })
+
+});
+
+
 
 app.listen(3000,()=>{
   console.log('started on 3000');
 });
+
+module.exports = {app};
